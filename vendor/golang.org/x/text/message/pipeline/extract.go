@@ -37,7 +37,7 @@ const debug = false
 
 // - `msg:"etc"` tags
 
-// Extract extracts all strings from the package defined in Config.
+// Extract extracts all strings form the package defined in Config.
 func Extract(c *Config) (*State, error) {
 	x, err := newExtracter(c)
 	if err != nil {
@@ -50,7 +50,8 @@ func Extract(c *Config) (*State, error) {
 	x.extractMessages()
 
 	return &State{
-		Config: *c,
+		Config:  *c,
+		program: x.iprog,
 		Extracted: Messages{
 			Language: c.SourceLanguage,
 			Messages: x.messages,
@@ -333,7 +334,9 @@ func (x *extracter) visitInit(global *ssa.Global, v ssa.Value) {
 	return
 }
 
-// visitFormats finds the original source of the value.
+// visitFormats finds the original source of the value. The returned index is
+// position of the argument if originated from a function argument or -1
+// otherwise.
 func (x *extracter) visitFormats(call *callData, v ssa.Value) {
 	if v == nil {
 		return
@@ -458,7 +461,7 @@ func (x *extracter) visitArgs(fd *callData, v ssa.Value) {
 		}
 
 	case *ssa.Alloc:
-		if ref := v.Referrers(); ref != nil {
+		if ref := v.Referrers(); ref == nil {
 			for _, r := range *ref {
 				values := []ssa.Value{}
 				for _, o := range r.Operands(nil) {

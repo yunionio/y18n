@@ -90,7 +90,7 @@ type Config struct {
 	// file. If not specified it is relative to the current directory.
 	GenPackage string
 
-	// DeclareVar defines a variable to which to assing the generated Catalog.
+	// DeclareVar defines a variable to which to assign the generated Catalog.
 	DeclareVar string
 
 	// SetDefault determines whether to assign the generated Catalog to
@@ -123,6 +123,9 @@ type Config struct {
 // State holds all accumulated information on translations during processing.
 type State struct {
 	Config Config
+
+	Package string
+	program *loader.Program
 
 	Extracted Messages `json:"messages"`
 
@@ -312,6 +315,7 @@ func (s *State) Merge() error {
 		for _, orig := range filtered {
 			m := *orig
 			m.Key = ""
+			m.Position = ""
 
 			for _, id := range m.ID {
 				if t, ok := translations[tag][id]; ok {
@@ -355,7 +359,6 @@ func (s *State) Export() error {
 		if err := os.MkdirAll(filepath.Dir(file), 0755); err != nil {
 			return wrap(err, "dir create failed")
 		}
-		data = append(data, '\n')
 		if err := ioutil.WriteFile(file, data, 0644); err != nil {
 			return wrap(err, "write failed")
 		}
