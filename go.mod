@@ -1,12 +1,11 @@
 module y18n
 
-go 1.14
+go 1.18
 
 require (
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
-	golang.org/x/mod v0.2.0
-	golang.org/x/text v0.3.3
-	golang.org/x/tools v0.0.0-20200702044944-0cc1aa72b347
+	golang.org/x/mod v0.14.0
+	golang.org/x/text v0.14.0
+	golang.org/x/tools v0.16.2-0.20231227162430-54ac623e9ca1
+	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543 // indirect
 )
-
-replace golang.org/x/text => github.com/yousong/text v0.0.0-20200923121639-d047d9b92cc4

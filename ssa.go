@@ -6,7 +6,6 @@ import (
 	"go/constant"
 	"go/token"
 	"go/types"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sort"
@@ -255,7 +254,7 @@ func newExtractor(pkgnames []string) (*extractor, error) {
 			x.errorType = tobj.Type()
 		}
 	}
-	if info := x.findPkg("yunion.io/x/onecloud/pkg/util/httputils"); info != nil {
+	if info := x.findPkg("yunion.io/x/pkg/util/httputils"); info != nil {
 		spkg := x.sprog.Package(info.Pkg)
 		f := spkg.Func("NewJsonClientError")
 		x.newJerrorFunc = f
@@ -346,7 +345,7 @@ func findModPath(pkgpath string) string {
 	for p := pkgpath; p != "."; p = filepath.Dir(p) {
 		f := filepath.Join(p, "go.mod")
 		if _, err := os.Stat(f); err == nil {
-			fdata, err := ioutil.ReadFile(f)
+			fdata, err := os.ReadFile(f)
 			if err != nil {
 				return ""
 			}
@@ -660,18 +659,7 @@ func actionPrepWriteFunc(c *pipeline.Config) func() error {
 		if err != nil {
 			return err
 		}
-		err = ioutil.WriteFile(filepath.Join(c.Dir, "doc.go"), []byte("package "+name+"\n"), mode)
-		if err != nil {
-			return err
-		}
-		err = ioutil.WriteFile(
-			filepath.Join(c.Dir, "locales.go"), []byte(
-				fmt.Sprintf(`
-package %s
-import "golang.org/x/text/message/catalog"
-var %s catalog.Catalog
-				`, name, c.DeclareVar)),
-			mode)
+		err = os.WriteFile(filepath.Join(c.Dir, "doc.go"), []byte("package "+name+"\n"), mode)
 		if err != nil {
 			return err
 		}
