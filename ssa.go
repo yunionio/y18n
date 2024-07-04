@@ -301,6 +301,9 @@ func (x *extractor) populateVErrTypeMap(bbw *basicBlockWalker, inst ssa.Instruct
 		if t, ok := v.Type().(*types.Basic); !ok || t.Kind() != types.String {
 			return
 		}
+		if _, ok := inst1.Key.(*ssa.Call); ok {
+			return
+		}
 		x.vErrTypeMap[k.Int64()] = constant.StringVal(v.Value)
 	case *ssa.Call:
 		f := inst1.Common().StaticCallee()
