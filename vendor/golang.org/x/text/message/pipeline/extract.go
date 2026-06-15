@@ -148,13 +148,13 @@ func (x *extracter) processGlobalVars() {
 				}
 				t := a.Type()
 				for {
-					p, ok := t.(*types.Pointer)
+					p, ok := types.Unalias(t).(*types.Pointer)
 					if !ok {
 						break
 					}
 					t = p.Elem()
 				}
-				if b, ok := t.(*types.Basic); !ok || b.Kind() != types.String {
+				if b, ok := types.Unalias(t).(*types.Basic); !ok || b.Kind() != types.String {
 					continue
 				}
 				x.visitInit(a, s.Val)
@@ -597,9 +597,13 @@ func (px packageExtracter) handleCall(call *ast.CallExpr) bool {
 	key := []string{}
 	if ident, ok := format.(*ast.Ident); ok {
 		key = append(key, ident.Name)
-		if v, ok := ident.Obj.Decl.(*ast.ValueSpec); ok && v.Comment != nil {
-			// TODO: get comment above ValueSpec as well
-			comment = v.Comment.Text()
+		// Ident.Obj may be nil if the referenced declaration is in another
+		// file.
+		if ident.Obj != nil {
+			if v, ok := ident.Obj.Decl.(*ast.ValueSpec); ok && v.Comment != nil {
+				// TODO: get comment above ValueSpec as well
+				comment = v.Comment.Text()
+			}
 		}
 	}
 	if c := px.getComment(call.Args[0]); c != "" {
